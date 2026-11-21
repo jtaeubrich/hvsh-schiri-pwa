@@ -8,6 +8,7 @@ const TOKEN_KEY = 'handballSpielanalyse.proxyToken';
 const id = key => document.getElementById(key);
 const formKeys = ['gameNumber','competition','date','time','home','away','hall','place','referee1','referee2','fee1','fee2'];
 let matchId='';let previewImage=null;let pdfObjectUrl=null;let demonstration=false;
+let matchMetadata=null;
 
 const showStatus=(message,type='')=>{
   const box=id('status');box.textContent=message;box.className='status '+type;
@@ -29,15 +30,34 @@ const activate=()=>{
   for(const key of ['editorPanel','refereePanel','exportPanel'])id(key).classList.remove('disabled');
   id('exportButton').disabled=false;
 };
+function startLoad() {
+  matchId='';
+  matchMetadata=null;
+  for(const key of ['loadButton','jsonFile','exportButton','exportJsonButton'])id(key).disabled=true;
+  id('pdfLink').hidden=true;
+  id('sourceLink').hidden=true;
+}
+function finishLoad() {
+  id('loadButton').disabled=false;
+  id('jsonFile').disabled=false;
+}
 function fillFromProxy(payload,expectedId=null) {
   const source=mapHandball360Payload(payload,expectedId);
   demonstration=Boolean(payload._test_fixture);
   matchId=source.matchId;
+  matchMetadata={
+    match_id:source.matchId,
+    match_url:source.sourceUrl,
+    match:payload.match,
+    additional_info:payload.additional_info,
+  };
+  if(demonstration)matchMetadata._test_fixture=payload._test_fixture;
+  id('exportJsonButton').disabled=false;
   id('sourceLink').href=source.sourceUrl;id('sourceLink').hidden=false;
   for(const key of ['gameNumber','competition','date','time','home','away','hall','place']) id(key).value=source[key]||'';
   activate();draw();
   if(source.hasOfficialNumber){showStatus('Spieldaten für '+source.matchId+' geladen. Bitte alle Angaben vor Export prüfen.','ok');}
-  else{showStatus('Spieldaten für '+source.matchId+' geladen. Die HVSH-Spielnummer fehlt in der Antwort und bleibt zur manuellen Ergänzung frei.','ok');}
+  else{showStatus('Spieldaten für '+source.matchId+' geladen. Die HVSH-Spielnummer konnte nicht automatisch übernommen werden und kann ergänzt werden.','ok');}
   const link=id('pdfLink');link.hidden=true;
   return source;
 }
@@ -51,12 +71,12 @@ function validateMoney(value,key) {
 
 id('loadForm').addEventListener('submit', async e=>{
   e.preventDefault();
+  if(id('loadButton').disabled)return;
   const requested=extractMatchId(id('matchInput').value);
   if(!requested){showStatus('Bitte einen gültigen handball.net-Spiel-Link oder eine numerische Match-ID eingeben.','error');return;}
   const token=getToken();
   if(!token){id('proxyDetails').open=true;showStatus('Für den Abruf wird der vorhandene Spielanalyse-Proxy-Token benötigt. Bitte Token eintragen.','error');return;}
-  id('loadButton').disabled=true;
-  matchId='';id('exportButton').disabled=true;id('pdfLink').hidden=true;id('sourceLink').hidden=true;
+  startLoad();
   showStatus('Lade Spieldaten über unseren bestehenden Proxy ...','working');
   const controller=new AbortController();
   const timeout=setTimeout(()=>controller.abort(),30000);
@@ -77,19 +97,31 @@ id('loadForm').addEventListener('submit', async e=>{
     if(error.name==='AbortError')showStatus('Abruf hat das Zeitlimit überschritten. Proxy und Netzwerkverbindung überprüfen.','error');
     else if(error instanceof TypeError)showStatus('Der Proxy konnte nicht erreicht werden. Mögliche Ursachen: keine Verbindung oder CORS-Freigabe für diese Website fehlt.','error');
     else showStatus(String(error.message||error),'error');
-  }finally {clearTimeout(timeout);id('loadButton').disabled=false;}
+  }finally {clearTimeout(timeout);finishLoad();}
 });
 
 id('jsonFile').addEventListener('change',async e=>{
   const file=e.target.files?.[0];if(!file)return;
+  if(id('loadButton').disabled)return;
+  startLoad();
   try{
-    matchId='';id('exportButton').disabled=true;id('pdfLink').hidden=true;id('sourceLink').hidden=true;
     const raw=JSON.parse(await file.text());
     const expected=extractMatchId(id('matchInput').value);
     const mapped=fillFromProxy(raw,expected||null);
     if(raw._test_fixture)showStatus('FIKTIVE TESTDATEN für '+mapped.matchId+' geladen. Nicht als echte Spielabrechnung verwenden!','error');
   }catch(err){showStatus('JSON konnte nicht importiert werden: '+String(err.message||err),'error');}
-  e.target.value='';
+  finally{e.target.value='';finishLoad();}
+});
+
+id('exportJsonButton').addEventListener('click',()=>{
+  if(!matchMetadata)return;
+  const blob=new Blob([JSON.stringify(matchMetadata,null,2)+'\n'],{type:'application/json'});
+  const url=URL.createObjectURL(blob);
+  const link=id('jsonDownload');
+  link.href=url;
+  link.download='Handball360_Spielmetadaten_'+matchMetadata.match_id+'.json';
+  link.click();
+  setTimeout(()=>URL.revokeObjectURL(url),60000);
 });
 
 for(const key of formKeys)id(key).addEventListener('input',draw);
