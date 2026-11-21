@@ -1,0 +1,14 @@
+import fs from 'node:fs/promises';
+import {fileURLToPath} from 'node:url';
+import {dirname,join} from 'node:path';
+import {mapHandball360Payload} from '../match.js';
+import {generateHVSH} from '../pdf.js';
+const here=dirname(fileURLToPath(import.meta.url));
+const raw=JSON.parse(await fs.readFile(join(here,'example-proxy-response.json'),'utf-8'));
+const model=mapHandball360Payload(raw,'591223');
+const jpeg=await fs.readFile(join(here,'../assets/hvsh-form.jpg'));
+globalThis.fetch=async()=>({ok:true,arrayBuffer:async()=>jpeg});
+const {blob}=await generateHVSH({...model,refereeCount:2,fee1:'15,00',fee2:'15,00',referee1:'',referee2:'',testFixture:true});
+const output=join(here,'../../HVSH_PWA_Musterformular_TESTDATEN.pdf');
+await fs.writeFile(output,new Uint8Array(await blob.arrayBuffer()));
+console.log(output);

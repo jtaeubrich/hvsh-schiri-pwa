@@ -1,0 +1,19 @@
+{
+  "_test_fixture": "FIKTIVE TESTDATEN - KEINE ECHTEN SPIELINFORMATIONEN",
+  "match_id": "591223",
+  "match_url": "https://www.handball.net/match/591223",
+  "match": {
+    "success": true,
+    "data": [{
+      "id": "591223",
+      "date": "2026-11-21T10:30:00+00:00",
+      "local": {"name": "Musterverein Heim"},
+      "visitor": {"name": "Musterverein Gast"},
+      "phase": {"name": "Musterstaffel", "competition": {"name": "Musterliga"}},
+      "field": {"name": "Muster-Sporthalle", "installation": {"city": "Musterstadt"}}
+    }]
+  },
+  "events": {"data": []},
+  "lineups": {"data": []},
+  "additional_info": {"data": []}
+}

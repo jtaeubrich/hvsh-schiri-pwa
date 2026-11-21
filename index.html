@@ -1,0 +1,88 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#182e48">
+  <meta name="description" content="Private Arbeitshilfe zur Vorausfüllung der HVSH-Schiedsrichterabrechnung mit Spieldaten von handball.net">
+  <link rel="manifest" href="./manifest.webmanifest">
+  <link rel="icon" type="image/png" href="./assets/icon-192.png">
+  <link rel="stylesheet" href="./styles.css">
+  <title>Schiri-Abrechnung | HVSH</title>
+</head>
+<body>
+<header class="topbar"><div class="wrap bar">
+  <div class="brand"><div class="mark">SR</div><div><strong>Schiri-Abrechnung</strong><small>HVSH · private Arbeitshilfe</small></div></div>
+  <span class="version">Prototyp v0.1</span>
+</div></header>
+<main class="wrap">
+  <div class="intro"><div class="eyebrow">Handball360 → HVSH-PDF</div><h1>Spiel laden. Abrechnung erzeugen.</h1>
+    <p>Übernimm offizielle Spielinformationen in die HVSH-Abrechnung 1.3. Die Eingaben lassen sich vor dem Export kontrollieren und korrigieren.</p></div>
+  <div class="content">
+    <section class="controls">
+      <div class="panel">
+        <div class="section-head"><span class="step">1</span><div><h2>Spiel laden</h2><p>Handball.net-Link oder Match-ID</p></div></div>
+        <form id="loadForm"><label for="matchInput">Spieladresse</label>
+          <div class="load-row"><input id="matchInput" name="matchInput" type="text" inputmode="url" autocomplete="off" spellcheck="false" value="https://www.handball.net/match/591223" placeholder="https://www.handball.net/match/591223" required>
+            <button id="loadButton" type="submit">Abrufen</button></div></form>
+        <div class="small-note">Datenquelle: unser bestehender Handball360-Proxy. Es werden keine Spieldaten an einen zusätzlichen Dienst gesendet.</div>
+        <details class="advanced" id="proxyDetails"><summary>Proxy-Zugriff und Token</summary>
+          <label for="proxyToken">Bearer-Token</label>
+          <input id="proxyToken" type="password" autocomplete="off" placeholder="Proxy-Token eingeben">
+          <label class="checkbox"><input id="rememberToken" type="checkbox"> Token auf diesem Gerät speichern (gemeinsamer Speicherbereich mit Spielanalyse auf demselben Host)</label>
+          <div class="small-note">Bei Veröffentlichung unter <code>jtaeubrich.github.io</code> kann der vorhandene Spielanalyse-Token automatisch verwendet werden. Die App übermittelt ihn nur an die fest eingestellte Proxy-Adresse.</div>
+        </details>
+        <details class="advanced"><summary>Alternativ: Proxy-JSON-Datei laden</summary>
+          <label for="jsonFile">JSON-Datei auswählen</label>
+          <input id="jsonFile" type="file" accept=".json,application/json">
+          <div class="small-note">Für Tests oder einen Export der originalen Proxy-Antwort. Keine Netzwerkverbindung erforderlich.</div>
+        </details>
+        <div id="status" role="status" aria-live="polite" class="status">Noch kein Spiel geladen.</div>
+        <a id="sourceLink" class="pdf-link" href="#" target="_blank" rel="noopener noreferrer" hidden>Originalspiel auf handball.net prüfen</a>
+      </div>
+
+      <div class="panel disabled" id="editorPanel">
+        <div class="section-head"><span class="step">2</span><div><h2>Angaben prüfen</h2><p>Felder sind bewusst bearbeitbar</p></div></div>
+        <div class="field-grid">
+          <div class="field wide"><label for="gameNumber">HVSH-Spielnummer <span class="optional">falls verfügbar</span></label><input id="gameNumber" placeholder="z. B. 2627... (nicht die Match-ID)"></div>
+          <div class="field wide"><label for="competition">Spielklasse / Staffel</label><input id="competition" placeholder="Spielklasse und Staffel"></div>
+          <div class="field"><label for="date">Spieldatum</label><input id="date" placeholder="TT.MM.JJJJ" inputmode="numeric"></div>
+          <div class="field"><label for="time">Anstoßzeit <span class="optional">nur zur Kontrolle</span></label><input id="time" placeholder="HH:MM" readonly></div>
+          <div class="field"><label for="home">Heim</label><input id="home" placeholder="Heimmannschaft"></div>
+          <div class="field"><label for="away">Gast</label><input id="away" placeholder="Gastmannschaft"></div>
+          <div class="field"><label for="hall">Sporthalle</label><input id="hall" placeholder="Hallenbezeichnung"></div>
+          <div class="field"><label for="place">Ort</label><input id="place" placeholder="Spielort"></div>
+        </div>
+        <p class="hint" id="numberHint">Die Match-ID wird nicht als HVSH-Spielnummer übernommen.</p>
+      </div>
+
+      <div class="panel disabled" id="refereePanel">
+        <div class="section-head"><span class="step">3</span><div><h2>Schiedsrichter</h2><p>Beide Personen auf einem Formular</p></div></div>
+        <div class="field-grid">
+          <div class="field wide"><label for="refereeCount">Anzahl Schiedsrichter</label><select id="refereeCount"><option value="2" selected>2 Schiedsrichter</option><option value="1">1 Schiedsrichter</option></select></div>
+          <div class="field"><label for="referee1">Person 1 <span class="optional">optional</span></label><input id="referee1" placeholder="Name"></div>
+          <div class="field"><label for="fee1">Einsatzgeld Person 1 (€)</label><input id="fee1" inputmode="decimal" value="15,00"></div>
+          <div class="field" id="ref2Name"><label for="referee2">Person 2 <span class="optional">optional</span></label><input id="referee2" placeholder="Name"></div>
+          <div class="field" id="ref2Fee"><label for="fee2">Einsatzgeld Person 2 (€)</label><input id="fee2" inputmode="decimal" value="15,00"></div>
+        </div>
+        <div class="small-note">Fahrtkosten und Gesamtbeträge bleiben zunächst leer. So wird nicht fälschlich angenommen, dass keine Fahrtkosten anfallen.</div>
+      </div>
+
+      <div class="panel disabled" id="exportPanel">
+        <div class="section-head"><span class="step">4</span><div><h2>PDF erzeugen</h2><p>Ausgefüllte HVSH-Vorlage</p></div></div>
+        <button id="exportButton" class="primary" type="button" disabled>HVSH-PDF erzeugen</button>
+        <a id="pdfLink" href="#" class="pdf-link" hidden>Erzeugtes PDF öffnen oder speichern</a>
+        <div class="small-note">Einseitiges A4-Dokument. Unbekannte Angaben bleiben frei und können handschriftlich ergänzt werden.</div>
+      </div>
+    </section>
+    <aside class="preview-column">
+      <div class="preview-head"><h2>Vorschau</h2><span>A4 · HVSH 1.3</span></div>
+      <div class="sheet-frame"><canvas id="previewCanvas" width="1190" height="1684" aria-label="Vorschau der vorausgefüllten HVSH-Abrechnung"></canvas></div>
+      <p class="preview-note">Das Ausgangsformular ist die HVSH-Abrechnung Spielbetrieb 1.3 (gültig ab Dezember 2023). Persönliche Daten werden nicht automatisch gespeichert.</p>
+    </aside>
+  </div>
+</main>
+<footer><div class="wrap">Nicht-offizielle Arbeitshilfe für die Erstellung einer HVSH-Abrechnung. Vor der Unterschrift alle Angaben auf Richtigkeit prüfen.</div></footer>
+<script type="module" src="./app.js"></script>
+</body>
+</html>

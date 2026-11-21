@@ -1,0 +1,14 @@
+# Local test artifacts and environment-specific files
+node_modules/
+tests/_artifacts/
+.playwright/
+__pycache__/
+*.log
+.DS_Store
+.env
+.env.*
+*.local
+
+# API credentials must not enter this repository
+*token*.json
+*credentials*.json
