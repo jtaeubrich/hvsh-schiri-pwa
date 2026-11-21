@@ -43,9 +43,10 @@ export function mapHandball360Payload(payload, expectedId = null) {
   const extra = (Array.isArray(payload.additional_info?.data) ? payload.additional_info.data[0] : payload.additional_info?.data) || {};
   const installation = hall.installation || meta.installation || extra.installation || extra.field?.installation || {};
   const date = localDateFromISO(meta.date);
-  // Identifiers named 'number' can differ between Handball360 versions.
-  // Leave this editable and blank unless a dedicated number field is present.
-  let gameNumber = firstText(meta.match_number, meta.matchNumber, meta.game_number, meta.gameNumber,
+  // Handball360 returns the Spielnummer in code and the URL's Match-ID in id.
+  const code = firstText(meta.code);
+  let gameNumber = firstText(code === id ? '' : code,
+    meta.match_number, meta.matchNumber, meta.game_number, meta.gameNumber,
     meta.official_match_number, meta.officialNumber, meta.spielnummer);
   if (gameNumber === id) gameNumber = '';
   return {
