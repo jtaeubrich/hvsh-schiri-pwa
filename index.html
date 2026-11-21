@@ -7,13 +7,13 @@
   <meta name="description" content="Private Arbeitshilfe zur Vorausfüllung der HVSH-Schiedsrichterabrechnung mit Spieldaten von handball.net">
   <link rel="manifest" href="./manifest.webmanifest">
   <link rel="icon" type="image/png" href="./assets/icon-192.png">
-  <link rel="stylesheet" href="./styles.css?v=0.1.1">
+  <link rel="stylesheet" href="./styles.css?v=0.2.0">
   <title>Schiri-Abrechnung | HVSH</title>
 </head>
 <body>
 <header class="topbar"><div class="wrap bar">
   <div class="brand"><div class="mark">SR</div><div><strong>Schiri-Abrechnung</strong><small>HVSH · private Arbeitshilfe</small></div></div>
-  <span class="version">v0.1.1</span>
+  <span class="version">v0.2.0</span>
 </div></header>
 <main class="wrap">
   <div class="intro"><div class="eyebrow">Handball360 → HVSH-PDF</div><h1>Spiel laden. Abrechnung erzeugen.</h1>
@@ -58,15 +58,42 @@
         <p class="hint" id="numberHint">Die Match-ID wird nicht als HVSH-Spielnummer übernommen.</p>
       </div>
 
-      <div class="panel disabled" id="refereePanel">
+      <div class="panel">
         <div class="section-head"><span class="step">3</span><div><h2>Schiedsrichter</h2><p>Beide Personen auf einem Formular</p></div></div>
-        <div class="field-grid">
-          <div class="field wide"><label for="refereeCount">Anzahl Schiedsrichter</label><select id="refereeCount"><option value="2" selected>2 Schiedsrichter</option><option value="1">1 Schiedsrichter</option></select></div>
-          <div class="field"><label for="referee1">Person 1 <span class="optional">optional</span></label><input id="referee1" placeholder="Name"></div>
-          <div class="field"><label for="fee1">Einsatzgeld Person 1 (€)</label><input id="fee1" inputmode="decimal" value="15,00"></div>
-          <div class="field" id="ref2Name"><label for="referee2">Person 2 <span class="optional">optional</span></label><input id="referee2" placeholder="Name"></div>
-          <div class="field" id="ref2Fee"><label for="fee2">Einsatzgeld Person 2 (€)</label><input id="fee2" inputmode="decimal" value="15,00"></div>
+        <label for="refereeCount">Anzahl Schiedsrichter</label>
+        <select id="refereeCount"><option value="2" selected>2 Schiedsrichter</option><option value="1">1 Schiedsrichter</option></select>
+        <div class="profile-grid">
+          <fieldset id="refereePerson1" class="profile">
+            <legend>Person 1</legend>
+            <div class="field-grid">
+              <div class="field wide"><label for="profile1">Gespeichertes Profil</label><select id="profile1"></select></div>
+              <div class="field wide"><label for="referee1">Vor- und Nachname</label><input id="referee1"></div>
+              <div class="field wide"><label for="street1">Straße und Hausnummer</label><input id="street1"></div>
+              <div class="field"><label for="postalCode1">PLZ</label><input id="postalCode1" inputmode="numeric"></div>
+              <div class="field"><label for="city1">Ort</label><input id="city1"></div>
+              <div class="profile-actions field wide"><button id="saveProfile1" type="button">Profil speichern</button><button id="deleteProfile1" type="button" disabled>Profil löschen</button></div>
+            </div>
+          </fieldset>
+          <fieldset id="refereePerson2" class="profile">
+            <legend>Person 2</legend>
+            <div class="field-grid">
+              <div class="field wide"><label for="profile2">Gespeichertes Profil</label><select id="profile2"></select></div>
+              <div class="field wide"><label for="referee2">Vor- und Nachname</label><input id="referee2"></div>
+              <div class="field wide"><label for="street2">Straße und Hausnummer</label><input id="street2"></div>
+              <div class="field"><label for="postalCode2">PLZ</label><input id="postalCode2" inputmode="numeric"></div>
+              <div class="field"><label for="city2">Ort</label><input id="city2"></div>
+              <div class="profile-actions field wide"><button id="saveProfile2" type="button">Profil speichern</button><button id="deleteProfile2" type="button" disabled>Profil löschen</button></div>
+            </div>
+          </fieldset>
         </div>
+        <p class="hint" id="profileStatus" role="status">Profile bleiben lokal in diesem Browser.</p>
+        <div class="field-grid fee-grid">
+          <div class="field wide"><label for="feeRate">Vergütungssatz pro Schiedsrichter · Saison 2026/27</label><select id="feeRate"><option value="">Manuell eingeben</option></select></div>
+          <div class="field"><label for="fee1">Einsatzgeld Person 1 (€)</label><input id="fee1" inputmode="decimal"></div>
+          <div class="field" id="ref2Fee"><label for="fee2">Einsatzgeld Person 2 (€)</label><input id="fee2" inputmode="decimal"></div>
+        </div>
+        <p class="hint" id="feeHint"></p>
+        <a id="feeSource" class="pdf-link" target="_blank" rel="noopener noreferrer" hidden>Durchführungsbestimmungen öffnen</a>
         <div class="small-note">Fahrtkosten und Gesamtbeträge bleiben zunächst leer. So wird nicht fälschlich angenommen, dass keine Fahrtkosten anfallen.</div>
       </div>
 
@@ -85,6 +112,6 @@
   </div>
 </main>
 <footer><div class="wrap">Nicht-offizielle Arbeitshilfe für die Erstellung einer HVSH-Abrechnung. Vor der Unterschrift alle Angaben auf Richtigkeit prüfen.</div></footer>
-<script type="module" src="./app.js?v=0.1.1"></script>
+<script type="module" src="./app.js?v=0.2.0"></script>
 </body>
 </html>

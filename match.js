@@ -14,6 +14,40 @@ export function extractMatchId(input) {
 const firstText = (...values) => values.find(v => (typeof v === 'string' || typeof v === 'number') && String(v).trim())?.toString().trim() || '';
 const label = value => typeof value === 'string' ? value.trim() : firstText(value?.name, value?.title, value?.designation);
 
+const HVSH_RULES='https://www.hvsh.de/fileadmin/user_upload/Dateien/Spielbetrieb/Saison_26_27/260709_-_DFB_HVSH.pdf#page=22';
+const HRN_RULES='https://www.hvsh.de/fileadmin/user_upload/Dateien/Spielbetrieb/Saison_26_27/260703_-_DFB_HRN_-_Regionalligen_Nord.pdf#page=8';
+const KHV_RULES='https://khv-dithmarschen.de/fileadmin/user_upload/260807_-_DuFueBest_Gemeinsamer_Spielbetrieb_JoGSH_und_Senioren_-_Spielserie_2026-27_V2.pdf#page=10';
+
+export const feeRates = {
+  hvshOberliga: {label:'HVSH Oberliga Erwachsene', amount:45, weekday:10, url:HVSH_RULES},
+  hvshVerbandsliga: {label:'HVSH Verbandsliga Erwachsene', amount:40, weekday:10, url:HVSH_RULES},
+  hvshYouth: {label:'HVSH Oberliga Jugend', amount:35, weekday:5, url:HVSH_RULES},
+  hvshCup: {label:'HVSH Pokal Erwachsene (vor dem Finalspieltag)', amount:40, weekday:10, url:HVSH_RULES},
+  hrnMen: {label:'Regionalliga Nord Männer', amount:80, weekday:10, url:HRN_RULES},
+  hrnWomen: {label:'Regionalliga Nord Frauen', amount:70, weekday:10, url:HRN_RULES},
+  hrnYouth: {label:'Regionalliga Nord Jugend', amount:60, weekday:5, url:HRN_RULES},
+  khvAdults: {label:'KHV Schleswig-Holstein Kreisoberliga / Kreisliga Erwachsene', amount:30, url:KHV_RULES},
+};
+
+export function suggestFeeRate(competition, organizer, isoDate) {
+  const seasonDate=String(isoDate ?? '').slice(0,10);
+  if(!localDateFromISO(isoDate).date || seasonDate<'2026-07-01' || seasonDate>='2027-07-01')return '';
+  const name=competition.toLowerCase().replace(/[\u2010-\u2015]/g,'-');
+  if(/pokal|turnier|qualifikation|freundschaft|relegation|entscheidung|ausscheidung/.test(name))return '';
+  const youth=/jugend|\b[wm]j[a-d]\b/.test(name);
+  const adults=/männer|frauen|senioren|erwachsene/.test(name);
+  if(/\bregionalliga nord\b/.test(name)) {
+    if(youth)return /\bd[- ]?jugend\b|jugend\s*d\b|\b[wm]jd\b/.test(name) ? '' : 'hrnYouth';
+    if(/\bmänner\b/.test(name))return 'hrnMen';
+    if(/\bfrauen\b/.test(name))return 'hrnWomen';
+  }
+  if(!/schleswig[ -]holstein|\bhvsh\b/i.test(name+' '+organizer))return '';
+  if(/\boberliga\b/.test(name))return youth ? 'hvshYouth' : adults ? 'hvshOberliga' : '';
+  if(/\bverbandsliga\b/.test(name) && adults && !youth)return 'hvshVerbandsliga';
+  if(/\bkreis(?:ober)?liga\b/.test(name) && adults && !youth)return 'khvAdults';
+  return '';
+}
+
 export function localDateFromISO(value) {
   // Handball360 date is already the published local wall clock in the source.
   // Do not apply timezone conversion to its literal date and time.
@@ -37,8 +71,11 @@ export function mapHandball360Payload(payload, expectedId = null) {
   if (expectedId && String(expectedId) !== id) throw new Error(`Die Antwort gehört zu Spiel ${id}, erwartet war ${expectedId}.`);
   if (meta.id != null && String(meta.id) !== id) throw new Error('Die Match-ID in der Antwort ist inkonsistent.');
   const phase = meta.phase || {};
-  const competition = firstText(phase.competition?.name, meta.competition?.name, meta.competition);
+  const competitionInfo = phase.competition || meta.competition;
+  const competition = firstText(label(phase.competition), label(meta.competition));
   const group = firstText(phase.name, phase.group?.name, meta.group?.name);
+  const competitionLabel = [competition, group && group !== competition ? group : ''].filter(Boolean).join(' / ');
+  const organizer = firstText(label(competitionInfo?.federation), label(meta.federation), label(phase.federation));
   const hall = meta.field || meta.venue || meta.hall || meta.sports_hall || meta.sportsHall || meta.installation || {};
   const extra = (Array.isArray(payload.additional_info?.data) ? payload.additional_info.data[0] : payload.additional_info?.data) || {};
   const installation = hall.installation || meta.installation || extra.installation || extra.field?.installation || {};
@@ -53,7 +90,8 @@ export function mapHandball360Payload(payload, expectedId = null) {
     matchId: id,
     sourceUrl: `https://www.handball.net/match/${id}`,
     gameNumber,
-    competition: [competition, group && group !== competition ? group : ''].filter(Boolean).join(' / '),
+    competition: competitionLabel,
+    feeRate: suggestFeeRate(competitionLabel,organizer,meta.date),
     date: date.date,
     time: date.time,
     home: firstText(meta.local?.name),

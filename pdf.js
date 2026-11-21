@@ -20,6 +20,10 @@ const rects = {
   place: {x:329.2, y:201.2, w:163.1, h:21.8},
   referee1: {x:65.0, y:254.4, w:238.1, h:21.8},
   referee2: {x:329.2, y:254.4, w:238.4, h:21.8},
+  street1: {x:65.0, y:290.6, w:238.1, h:21.8},
+  street2: {x:329.2, y:290.6, w:238.4, h:21.8},
+  postalCity1: {x:65.0, y:326.8, w:238.1, h:21.8},
+  postalCity2: {x:329.2, y:326.8, w:238.4, h:21.8},
   fee1: {x:237.5, y:622.4, w:65.5, h:22.0, align:'right', bold:true},
   fee2: {x:501.5, y:622.4, w:65.5, h:22.0, align:'right', bold:true},
 };
@@ -48,12 +52,18 @@ function layoutItem(key, value) {
 
 export function overlayLayout(data) {
   const count = data.refereeCount === 1 ? 1 : 2;
+  const refereeFields = num => [
+    ['referee'+num,data['referee'+num]],
+    ['street'+num,data['street'+num]],
+    ['postalCity'+num,[data['postalCode'+num],data['city'+num]].filter(Boolean).join(' ')],
+    ['fee'+num,data['fee'+num]],
+  ];
   const fields = [
     ['gameNumber',data.gameNumber], ['competition',data.competition],
     ['date',data.date], ['home',data.home], ['away',data.away],
     ['hall',data.hall], ['place',data.place],
-    ['referee1',data.referee1], ['fee1',data.fee1],
-    ...(count===2 ? [['referee2',data.referee2],['fee2',data.fee2]] : []),
+    ...refereeFields(1),
+    ...(count===2 ? refereeFields(2) : []),
   ];
   return {
     testFixture:Boolean(data.testFixture),

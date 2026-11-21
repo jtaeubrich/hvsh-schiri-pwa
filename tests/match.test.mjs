@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { extractMatchId, mapHandball360Payload, localDateFromISO } from '../match.js';
+import { extractMatchId, feeRates, mapHandball360Payload, localDateFromISO, suggestFeeRate } from '../match.js';
 
 test('match links and numeric IDs accepted with strict origin', () => {
   assert.equal(extractMatchId('https://www.handball.net/match/591223'), '591223');
@@ -29,4 +29,30 @@ test('uses a dedicated official match number when available', () => {
   const x=mapHandball360Payload({match_id:'591223',match:{data:[{id:'591223',game_number:'2627ABC01234',local:{name:'A'},visitor:{name:'B'}}]}});
   assert.equal(x.gameNumber,'2627ABC01234');
   assert.equal(x.hasOfficialNumber,true);
+});
+
+test('suggests documented league base fees only for the applicable season and competition', () => {
+  const date='2026-11-21T13:00:00+00:00';
+  const cases=[
+    ['Oberliga Schleswig-Holstein Männer','',45],
+    ['Verbandsliga Schleswig-Holstein Frauen / Meisterrunde - Nord','',40],
+    ['Oberliga Schleswig-Holstein männliche B-Jugend','',35],
+    ['Regionalliga Nord Männer','',80],
+    ['Regionalliga Nord Frauen','',70],
+    ['Regionalliga Nord weibliche C-Jugend','',60],
+    ['Kreisoberliga Männer / Kreisoberliga Männer Nord','Handballverband Schleswig-Holstein',30],
+    ['Regionsliga MÄNNLICH / HGRF-RLmD-V-A','Handballverband Schleswig-Holstein',undefined],
+    ['Kreisliga weibliche D-Jugend','Handballverband Schleswig-Holstein',undefined],
+    ['Kreisliga Männer','Handballverband Westfalen',undefined],
+    ['Oberliga Schleswig-Holstein Jugend Qualifikation','',undefined],
+  ];
+  for(const [competition,organizer,amount] of cases) {
+    assert.equal(feeRates[suggestFeeRate(competition,organizer,date)]?.amount,amount,competition);
+  }
+  assert.equal(suggestFeeRate('Regionalliga Nord Männer','','2027-07-01'),'');
+  assert.equal(suggestFeeRate('Regionalliga Nord Männer','','2026-11-31'),'');
+  const payload={match_id:'591223',match:{data:[{id:591223,date,phase:{competition:{
+    name:'Kreisliga Männer',federation:{name:'Handballverband Schleswig-Holstein'},
+  }}}]}};
+  assert.equal(mapHandball360Payload(payload).feeRate,'khvAdults');
 });

@@ -1,11 +1,11 @@
 // Only static application assets are cached. Proxy data and tokens are not cached.
-const VERSION = '0.1.1';
+const VERSION = '0.2.0';
 const CACHE = 'hvsh-schiri-' + VERSION;
 const ROOT = new URL('./', self.location.href);
 const INDEX = new URL('index.html', ROOT);
 const ASSETS = [
   './', './index.html', './styles.css?v=' + VERSION, './app.js?v=' + VERSION,
-  './match.js?v=' + VERSION, './pdf.js', './font-metrics.js', './manifest.webmanifest',
+  './match.js?v=' + VERSION, './pdf.js?v=' + VERSION, './font-metrics.js', './manifest.webmanifest',
   './assets/hvsh-form.jpg', './assets/icon-192.png', './assets/icon-512.png',
 ];
 

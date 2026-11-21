@@ -1,4 +1,4 @@
-# Schiri-Abrechnung (HVSH) – eigenständige PWA, Prototyp v0.1
+# Schiri-Abrechnung (HVSH) – eigenständige PWA
 
 **Ziel:** Aus einem handball.net-Spiel-Link das HVSH-Formular »Abrechnung Spielbetrieb 1.3« für eine oder zwei Personen erstellen. Die bestehende Google-Cloud-Run-Schnittstelle aus `jtaeubrich/Spielanalyse` wird unverändert verwendet.
 
@@ -18,7 +18,8 @@
 - JSON-Modell: `{match_id,match:{data:[...]},events,lineups,additional_info}`.
 - Übernommen werden: Datum (wörtliche lokale Handball360-Anstoßzeit), Wettbewerb/Staffel, Heim, Gast, Hallenname und Ort, sofern tatsächlich vorhanden. Diese Felder sind bearbeitbar.
 - **Die handball.net-Match-ID ist nicht zwingend die offizielle HVSH-Spielnummer.** Wenn kein unterscheidbares, explizites Nummernfeld geliefert wird, bleibt die HVSH-Spielnummer leer.
-- Einsatzgeld: pro Schiedsrichter voreingestellt 15,00 €; keine automatische Annahme über Fahrtkosten, kein automatisch eingetragener Gesamtbetrag.
+- Profile mit Name, Straße und Hausnummer, PLZ und Ort werden ausdrücklich gespeichert und können ausgewählt, geändert und gelöscht werden. Sie bleiben im Browser und werden nicht in den Proxy-JSON-Export geschrieben. Gewählte Anschriften erscheinen im PDF.
+- Einsatzgeld: Für eindeutig zugeordnete Ligaspiele der Saison 2026/27 wird der belegte Grundbetrag je Schiedsrichter vorgeschlagen. Bei offenen Zuordnungen bleibt das Feld leer. Beträge sind editierbar. Vorschläge verlinken die Bestimmungen des HVSH (§ 27), der Regionalliga Nord (§ 14.13) oder des gemeinsamen KHV-Spielbetriebs (C.3). Wochentagszuschläge werden angezeigt, sofern vorgesehen, und bei Bedarf manuell eingetragen.
 - Die Basisvorlage ist die HVSH-Abrechnung Spielbetrieb 1.3 (Stand gültig ab Dezember 2023). Ihre Seite ist als JPEG mit 220 dpi hinterlegt, um ohne Drittanbieterbibliothek lokal PDF-Dateien erzeugen zu können. Zusätzliche Werte werden als durchsuchbarer Vektortext eingetragen. Die unveränderte Ursprungs-PDF befindet sich unter `assets/`.
 - Ein PDF wird **ausschließlich im Browser** erzeugt; es wird kein PDF-Service aufgerufen. Die Netzverbindung wird nur zum Abrufen der Spieldaten über den bestehenden Proxy benötigt. Token und Matchdaten landen nicht im Service-Worker-Cache.
 - Test-JSON mit dem Merkmal `_test_fixture` wird im erzeugten PDF gut sichtbar als **TESTDATEN** gekennzeichnet.
@@ -38,11 +39,10 @@ Option B: Unterverzeichnis im bestehenden `Spielanalyse`-Repository mit eigener 
 
 Nicht dokumentierte interne handball.net-Endpunkte können sich ändern; der bestehende Proxy bleibt die einzige Datenzugriffsschicht. Der Proxy-Zugriff und die Nutzungsbedingungen sollten vor einem breiteren öffentlichen Einsatz geprüft werden.
 
-## Geplante Erweiterungen (nicht in v0.1)
+## Geplante Erweiterungen
 
-- Freiwillig lokal gespeicherte Schiedsrichterprofile (Name, Anschrift, IBAN, Startadresse)
+- IBAN und abweichende Startadresse für die Anreise
 - Wahl des Verkehrsmittels und der tatsächlichen Anreise, Reisekosten nach gültiger HVSH-Regelung, Berechnung je Person
 - Historie und Formularversionierung, gegebenenfalls Signaturen
 - Vorlagenweiterentwicklung / Update auf neuere HVSH-Abrechnungsformulare
 
-Private Anschriften und Kontodaten sollten erst mit einem bewusst gestalteten lokalen Speicher- und Löschkonzept ergänzt werden. Die erste Version speichert diese Daten nicht.

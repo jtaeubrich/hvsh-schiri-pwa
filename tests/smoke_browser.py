@@ -15,8 +15,21 @@ with sync_playwright() as p:
     assert page.locator('#gameNumber').input_value()==''
     assert page.locator('#date').input_value()=='21.11.2026'
     assert page.locator('#hall').input_value()=='Muster-Sporthalle'
-    assert page.locator('#fee1').input_value()=='15,00'
-    assert page.locator('#fee2').input_value()=='15,00'
+    assert page.locator('#fee1').input_value()==''
+    assert page.locator('#fee2').input_value()==''
+    page.locator('#fee1').fill('15,00')
+    page.locator('#fee2').fill('15,00')
+    page.locator('#referee1').fill('Muster Person')
+    page.locator('#street1').fill('Musterweg 1')
+    page.locator('#postalCode1').fill('24119')
+    page.locator('#city1').fill('Kronshagen')
+    page.locator('#saveProfile1').click()
+    profile=page.locator('#profile1').input_value()
+    assert profile
+    page.locator('#profile1').select_option('')
+    assert page.locator('#street1').input_value()==''
+    page.locator('#profile1').select_option(profile)
+    assert page.locator('#street1').input_value()=='Musterweg 1'
     page.screenshot(path=str(out/'desktop.png'),full_page=True)
     with page.expect_download(timeout=20000) as event:
         page.locator('#exportButton').click()
@@ -33,6 +46,8 @@ assert 'Musterverein Gast' in text
 assert text.count('15,00')==2,repr(text)
 assert 'Musterliga / Musterstaffel' in text
 assert 'Musterstadt' in text
+assert 'Musterweg 1' in text
+assert '24119 Kronshagen' in text
 assert '591223' not in text
 assert pdf[0].rect.width>590 and pdf[0].rect.height>840
 pix=pdf[0].get_pixmap(matrix=fitz.Matrix(1.5,1.5),alpha=False)
