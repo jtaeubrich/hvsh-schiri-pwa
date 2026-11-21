@@ -7,13 +7,13 @@
   <meta name="description" content="Private Arbeitshilfe zur Vorausfüllung der HVSH-Schiedsrichterabrechnung mit Spieldaten von handball.net">
   <link rel="manifest" href="./manifest.webmanifest">
   <link rel="icon" type="image/png" href="./assets/icon-192.png">
-  <link rel="stylesheet" href="./styles.css?v=0.2.0">
+  <link rel="stylesheet" href="./styles.css?v=0.2.1">
   <title>Schiri-Abrechnung | HVSH</title>
 </head>
 <body>
 <header class="topbar"><div class="wrap bar">
   <div class="brand"><div class="mark">SR</div><div><strong>Schiri-Abrechnung</strong><small>HVSH · private Arbeitshilfe</small></div></div>
-  <span class="version">v0.2.0</span>
+  <span class="version">v0.2.1</span>
 </div></header>
 <main class="wrap">
   <div class="intro"><div class="eyebrow">Handball360 → HVSH-PDF</div><h1>Spiel laden. Abrechnung erzeugen.</h1>
@@ -88,12 +88,12 @@
         </div>
         <p class="hint" id="profileStatus" role="status">Profile bleiben lokal in diesem Browser.</p>
         <div class="field-grid fee-grid">
-          <div class="field wide"><label for="feeRate">Vergütungssatz pro Schiedsrichter · Saison 2026/27</label><select id="feeRate"><option value="">Manuell eingeben</option></select></div>
+          <div class="field wide"><label for="feeRate">Vergütungssatz pro Schiedsrichter</label><select id="feeRate"><option value="">Manuell eingeben</option></select></div>
           <div class="field"><label for="fee1">Einsatzgeld Person 1 (€)</label><input id="fee1" inputmode="decimal"></div>
           <div class="field" id="ref2Fee"><label for="fee2">Einsatzgeld Person 2 (€)</label><input id="fee2" inputmode="decimal"></div>
         </div>
         <p class="hint" id="feeHint"></p>
-        <a id="feeSource" class="pdf-link" target="_blank" rel="noopener noreferrer" hidden>Durchführungsbestimmungen öffnen</a>
+        <a id="feeSource" class="pdf-link" target="_blank" rel="noopener noreferrer" hidden>Durchführungsbestimmungen 2026/27 öffnen</a>
         <div class="small-note">Fahrtkosten und Gesamtbeträge bleiben zunächst leer. So wird nicht fälschlich angenommen, dass keine Fahrtkosten anfallen.</div>
       </div>
 
@@ -112,6 +112,6 @@
   </div>
 </main>
 <footer><div class="wrap">Nicht-offizielle Arbeitshilfe für die Erstellung einer HVSH-Abrechnung. Vor der Unterschrift alle Angaben auf Richtigkeit prüfen.</div></footer>
-<script type="module" src="./app.js?v=0.2.0"></script>
+<script type="module" src="./app.js?v=0.2.1"></script>
 </body>
 </html>

@@ -41,7 +41,6 @@ test('suggests documented league base fees only for the applicable season and co
     ['Regionalliga Nord Frauen','',70],
     ['Regionalliga Nord weibliche C-Jugend','',60],
     ['Kreisoberliga Männer / Kreisoberliga Männer Nord','Handballverband Schleswig-Holstein',30],
-    ['Regionsliga MÄNNLICH / HGRF-RLmD-V-A','Handballverband Schleswig-Holstein',undefined],
     ['Kreisliga weibliche D-Jugend','Handballverband Schleswig-Holstein',undefined],
     ['Kreisliga Männer','Handballverband Westfalen',undefined],
     ['Oberliga Schleswig-Holstein Jugend Qualifikation','',undefined],
@@ -55,4 +54,16 @@ test('suggests documented league base fees only for the applicable season and co
     name:'Kreisliga Männer',federation:{name:'Handballverband Schleswig-Holstein'},
   }}}]}};
   assert.equal(mapHandball360Payload(payload).feeRate,'khvAdults');
+});
+
+test('uses the configured Förde youth rate with the staffel code or regional organizer', () => {
+  const raw={match_id:'591223',match:{data:[{
+    id:591223,code:'2627FORBKRDJMA0802',date:'2026-11-21T13:00:00+00:00',
+    phase:{name:'HGRF-RLmD-V-A',competition:{name:'Regionsliga MÄNNLICH'}},
+  }]}};
+  const match=mapHandball360Payload(raw);
+  assert.equal(feeRates[match.feeRate].amount,15);
+  assert.equal(suggestFeeRate('Weibliche E-Jugend','HGR Förde','2027-11-20'),'foerdeYouth');
+  assert.equal(suggestFeeRate('Regionsliga Männer / HGRF-RLM','HGR Förde','2026-11-21'),'');
+  assert.equal(suggestFeeRate('Regionsliga mD','KHV Lübeck','2026-11-21'),'');
 });

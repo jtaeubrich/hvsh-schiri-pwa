@@ -1,5 +1,5 @@
-import {extractMatchId, feeRates, mapHandball360Payload} from './match.js?v=0.2.0';
-import {loadFormImage, paintPreview, generateHVSH} from './pdf.js?v=0.2.0';
+import {extractMatchId, feeRates, mapHandball360Payload} from './match.js?v=0.2.1';
+import {loadFormImage, paintPreview, generateHVSH} from './pdf.js?v=0.2.1';
 
 // Existing deployed endpoint used by the Spielanalyse PWA.
 // Fixed destination prevents accidentally transmitting the token to arbitrary hosts.
@@ -112,11 +112,11 @@ for(const [key,rate] of Object.entries(feeRates)) {
 function describeFeeRate(key) {
   const rate=feeRates[key];
   const source=id('feeSource');
-  source.hidden=!rate;
-  if(rate)source.href=rate.url;
+  source.hidden=!rate?.url;
+  if(rate?.url)source.href=rate.url;
   id('feeHint').textContent=!rate ? 'Bei fehlender Zuordnung bitte den Satz der zuständigen Spielleitung eintragen.'
-    : rate.weekday ? 'Grundbetrag pro Person. Bei Mo–Fr außer Feiertagen ggf. '+formatFee(rate.weekday)+' € Zuschlag je Person ergänzen.'
-      : 'Grundbetrag pro Person laut Durchführungsbestimmungen.';
+    : rate.note || (rate.weekday ? 'Grundbetrag pro Person. Bei Mo–Fr außer Feiertagen ggf. '+formatFee(rate.weekday)+' € Zuschlag je Person ergänzen.'
+      : 'Grundbetrag pro Person laut Durchführungsbestimmungen.');
 }
 
 function fillFees(key) {

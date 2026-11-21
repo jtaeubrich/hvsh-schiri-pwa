@@ -27,12 +27,16 @@ export const feeRates = {
   hrnWomen: {label:'Regionalliga Nord Frauen', amount:70, weekday:10, url:HRN_RULES},
   hrnYouth: {label:'Regionalliga Nord Jugend', amount:60, weekday:5, url:HRN_RULES},
   khvAdults: {label:'KHV Schleswig-Holstein Kreisoberliga / Kreisliga Erwachsene', amount:30, url:KHV_RULES},
+  foerdeYouth: {label:'Region Förde Jugend', amount:15, note:'Hinterlegter Standard der App für Jugendspiele der Region Förde.'},
 };
 
 export function suggestFeeRate(competition, organizer, isoDate) {
+  const name=competition.toLowerCase().replace(/[\u2010-\u2015]/g,'-');
+  const foerde=/\b(?:region\s+förde|hg\s+förde|hgr\s+förde|hgrf)\b/i.test(name+' '+organizer);
+  const foerdeYouth=/jugend|\b[wm]j?[a-f]\b|\bhgrf-[a-z]*[wm]j?[a-f]\b/.test(name);
+  if(foerde && foerdeYouth)return 'foerdeYouth';
   const seasonDate=String(isoDate ?? '').slice(0,10);
   if(!localDateFromISO(isoDate).date || seasonDate<'2026-07-01' || seasonDate>='2027-07-01')return '';
-  const name=competition.toLowerCase().replace(/[\u2010-\u2015]/g,'-');
   if(/pokal|turnier|qualifikation|freundschaft|relegation|entscheidung|ausscheidung/.test(name))return '';
   const youth=/jugend|\b[wm]j[a-d]\b/.test(name);
   const adults=/männer|frauen|senioren|erwachsene/.test(name);

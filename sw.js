@@ -1,5 +1,5 @@
 // Only static application assets are cached. Proxy data and tokens are not cached.
-const VERSION = '0.2.0';
+const VERSION = '0.2.1';
 const CACHE = 'hvsh-schiri-' + VERSION;
 const ROOT = new URL('./', self.location.href);
 const INDEX = new URL('index.html', ROOT);
