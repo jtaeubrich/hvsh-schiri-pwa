@@ -1,4 +1,4 @@
-import {extractMatchId, mapHandball360Payload} from './match.js';
+import {extractMatchId, mapHandball360Payload} from './match.js?v=0.1.1';
 import {loadFormImage, paintPreview, generateHVSH} from './pdf.js';
 
 // Existing deployed endpoint used by the Spielanalyse PWA.
@@ -159,4 +159,4 @@ try {
   if(stored)id('proxyToken').value=stored;
 }catch{}
 loadFormImage().then(img=>{previewImage=img;draw();}).catch(err=>showStatus('Formularhintergrund nicht geladen: '+err.message,'error'));
-if('serviceWorker' in navigator)window.addEventListener('load',()=>navigator.serviceWorker.register('./sw.js').catch(()=>{}));
+if('serviceWorker' in navigator)window.addEventListener('load',()=>navigator.serviceWorker.register('./sw.js',{updateViaCache:'none'}).catch(()=>{}));
